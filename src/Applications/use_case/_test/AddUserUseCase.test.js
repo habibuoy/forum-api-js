@@ -50,7 +50,8 @@ describe('AddUserUseCase', () => {
       fullname: useCasePayload.fullname,
     }));
 
-    expect(mockUserRepository.verifyAvailableUsername).toHaveBeenCalledWith(useCasePayload.username);
+    expect(mockUserRepository.verifyAvailableUsername)
+      .toHaveBeenCalledWith(useCasePayload.username);
     expect(mockPasswordHash.hash).toHaveBeenCalledWith(useCasePayload.password);
     expect(mockUserRepository.addUser).toHaveBeenCalledWith(new RegisterUser({
       username: useCasePayload.username,
