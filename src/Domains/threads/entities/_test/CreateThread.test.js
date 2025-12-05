@@ -1,7 +1,7 @@
 const RegisterUser = require('../CreateThread');
 
-describe('a CreateThread entities', () => {
-  it('should throw error when payload did not contain needed property', () => {
+describe('a CreateThread entity', () => {
+  it('should throw error when payload does not contain needed property', () => {
     // Arrange
     const payload = {
       title: 'abc',
@@ -11,7 +11,7 @@ describe('a CreateThread entities', () => {
     expect(() => new RegisterUser(payload)).toThrow('CREATE_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
-  it('should throw error when payload did not meet data type specification', () => {
+  it('should throw error when payload does not meet data type specification', () => {
     // Arrange
     const payload = {
       title: { },

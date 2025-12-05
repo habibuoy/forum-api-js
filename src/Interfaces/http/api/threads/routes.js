@@ -9,6 +9,14 @@ const routes = (handler) => ([
       auth: authStrategy.JwtAuthStrategyName,
     },
   },
+  {
+    method: 'POST',
+    path: '/threads/{threadId}/comments',
+    handler: handler.postCommentHandler,
+    options: {
+      auth: authStrategy.JwtAuthStrategyName,
+    },
+  },
 ]);
 
 module.exports = routes;
