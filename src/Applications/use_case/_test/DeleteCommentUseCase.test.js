@@ -19,6 +19,7 @@ describe('DeleteCommentUseCase', () => {
       id: useCasePayload.threadId,
       title: 'Test Title',
       owner: useCasePayload.ownerId,
+      date: new Date().toISOString(),
     });
 
     /** creating dependency of use case */

@@ -5,10 +5,11 @@ const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 
 class CommentRepositoryPostgres extends CommentRepository {
-  constructor(pool, idGenerator) {
+  constructor(pool, idGenerator, dateProvider) {
     super();
     this._pool = pool;
     this._idGenerator = idGenerator;
+    this._dateProvider = dateProvider;
   }
 
   async addComment(comment) {
@@ -17,8 +18,8 @@ class CommentRepositoryPostgres extends CommentRepository {
     const id = `comment-${this._idGenerator()}`;
 
     const query = {
-      text: 'INSERT INTO comments VALUES($1, $2, $3, $4) RETURNING id, content, owner_id',
-      values: [id, content, threadId, ownerId],
+      text: 'INSERT INTO comments VALUES($1, $2, $3, $4, $5, $6) RETURNING id, content, owner_id, date',
+      values: [id, content, threadId, ownerId, false, this._dateProvider.getUtcNowString()],
     };
 
     const result = await this._pool.query(query);

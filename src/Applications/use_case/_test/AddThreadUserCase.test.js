@@ -15,10 +15,12 @@ describe('AddThreadUseCase', () => {
       owner: 'owner',
     };
 
+    const now = new Date().toISOString();
     const mockCreatedThread = new CreatedThread({
       id: 'thread-123',
       title: useCasePayload.title,
       owner: useCasePayload.owner,
+      date: now,
     });
 
     /** creating dependency of use case */
@@ -41,12 +43,14 @@ describe('AddThreadUseCase', () => {
       id: 'thread-123',
       title: useCasePayload.title,
       owner: useCasePayload.owner,
+      date: now,
     }));
 
     expect(mockRepository.addThread).toHaveBeenCalledWith(new CreateThread({
       title: useCasePayload.title,
       body: useCasePayload.body,
       owner: useCasePayload.owner,
+      date: now,
     }));
   });
 });

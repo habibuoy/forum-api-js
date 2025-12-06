@@ -37,7 +37,10 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       const fakeIdGenerator = () => '123'; // stub!
-      const repository = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      const fakeDateProvider = {
+        getUtcNowString: () => new Date().toISOString(),
+      };
+      const repository = new CommentRepositoryPostgres(pool, fakeIdGenerator, fakeDateProvider);
 
       // Action
       await repository.addComment(addComment);
@@ -64,7 +67,10 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       const fakeIdGenerator = () => '123'; // stub!
-      const repository = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      const fakeDateProvider = {
+        getUtcNowString: () => new Date('2021-08-08T07:22:33.555Z').toISOString(),
+      };
+      const repository = new CommentRepositoryPostgres(pool, fakeIdGenerator, fakeDateProvider);
 
       // Action
       const addedComment = await repository.addComment(addComment);
@@ -75,6 +81,7 @@ describe('CommentRepositoryPostgres', () => {
         content: addComment.content,
         threadId: thread.id,
         ownerId: user.id,
+        date: fakeDateProvider.getUtcNowString(),
       }));
     });
   });

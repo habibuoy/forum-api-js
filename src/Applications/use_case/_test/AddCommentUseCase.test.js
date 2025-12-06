@@ -17,16 +17,19 @@ describe('AddCommentUseCase', () => {
       ownerId: 'user',
     };
 
+    const commentNow = new Date().toISOString();
     const mockAddedComment = new AddedComment({
       id: 'comment-123',
       content: useCasePayload.content,
       ownerId: useCasePayload.ownerId,
+      date: commentNow,
     });
 
     const mockThread = new CreatedThread({
       id: useCasePayload.threadId,
       title: 'Test Title',
       owner: useCasePayload.ownerId,
+      date: new Date().toISOString(),
     });
 
     /** creating dependency of use case */
@@ -53,6 +56,7 @@ describe('AddCommentUseCase', () => {
       id: 'comment-123',
       content: useCasePayload.content,
       ownerId: useCasePayload.ownerId,
+      date: commentNow,
     }));
 
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(useCasePayload.threadId);

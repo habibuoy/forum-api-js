@@ -11,6 +11,8 @@ const pool = require('./database/postgres/pool');
 // service (repository, helper, manager, etc)
 const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
+const DateProvider = require('../Applications/common/DateProvider');
+const DefaultDateProvider = require('./common/DefaultDateProvider');
 const UserRepository = require('../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('./repository/UserRepositoryPostgres');
 const AuthenticationRepository = require('../Domains/authentications/AuthenticationRepository');
@@ -59,6 +61,10 @@ container.register([
     },
   },
   {
+    key: DateProvider.name,
+    Class: DefaultDateProvider,
+  },
+  {
     key: UserRepository.name,
     Class: UserRepositoryPostgres,
     parameter: {
@@ -94,6 +100,9 @@ container.register([
         {
           concrete: nanoid,
         },
+        {
+          internal: DateProvider.name,
+        },
       ],
     },
   },
@@ -107,6 +116,9 @@ container.register([
         },
         {
           concrete: nanoid,
+        },
+        {
+          internal: DateProvider.name,
         },
       ],
     },

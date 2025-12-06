@@ -2,12 +2,13 @@
 
 const mapper = {
   fromDb: ({
-    id, content, thread_id, owner_id,
+    id, content, thread_id, owner_id, date,
   }) => ({
     id,
     content,
     threadId: thread_id,
     ownerId: owner_id,
+    date,
   }),
 };
 

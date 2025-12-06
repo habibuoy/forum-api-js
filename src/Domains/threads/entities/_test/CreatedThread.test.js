@@ -17,6 +17,7 @@ describe('a CreatedThread entity', () => {
       id: 123,
       title: [],
       owner: { },
+      date: [],
     };
 
     // Action and Assert
@@ -29,6 +30,7 @@ describe('a CreatedThread entity', () => {
       id: 'user-123',
       title: 'Test Title',
       owner: 'test',
+      date: new Date().toISOString(),
     };
 
     // Action

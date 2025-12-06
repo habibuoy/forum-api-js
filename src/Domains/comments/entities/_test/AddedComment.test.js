@@ -18,18 +18,20 @@ describe('an AddedComment entity', () => {
       id: 123,
       content: { },
       ownerId: 'test',
+      date: [],
     };
 
     // Action and Assert
     expect(() => new AddedComment(payload)).toThrow('ADDED_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-  it('should create AddComment object correctly', () => {
+  it('should create AddedComment object correctly', () => {
     // Arrange
     const payload = {
       id: 'comment',
       content: 'Test Comment',
       ownerId: 'user',
+      date: new Date().toISOString(),
     };
 
     // Action

@@ -28,8 +28,13 @@ describe('ThreadRepositoryPostgres', () => {
         body: 'test body',
         owner: user.id,
       });
+
       const fakeIdGenerator = () => '123'; // stub!
-      const repository = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const fakeDateProvider = {
+        getUtcNowString: () => new Date().toISOString(),
+      };
+
+      const repository = new ThreadRepositoryPostgres(pool, fakeIdGenerator, fakeDateProvider);
 
       // Action
       await repository.addThread(createThread);
@@ -52,7 +57,10 @@ describe('ThreadRepositoryPostgres', () => {
       });
 
       const fakeIdGenerator = () => '123'; // stub!
-      const repository = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const fakeDateProvider = {
+        getUtcNowString: () => new Date('2021-08-08T07:22:33.555Z').toISOString(),
+      };
+      const repository = new ThreadRepositoryPostgres(pool, fakeIdGenerator, fakeDateProvider);
 
       // Action
       const createdThread = await repository.addThread(createThread);
@@ -63,6 +71,7 @@ describe('ThreadRepositoryPostgres', () => {
         title: 'Test Title',
         body: 'test body',
         owner: user.id,
+        date: new Date('2021-08-08T07:22:33.555Z').toISOString(),
       }));
     });
   });
