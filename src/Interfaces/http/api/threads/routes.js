@@ -14,22 +14,6 @@ const routes = (handler) => ([
     path: '/threads/{threadId}',
     handler: handler.getThreadByIdHandler,
   },
-  {
-    method: 'POST',
-    path: '/threads/{threadId}/comments',
-    handler: handler.postCommentHandler,
-    options: {
-      auth: authStrategy.JwtAuthStrategyName,
-    },
-  },
-  {
-    method: 'DELETE',
-    path: '/threads/{threadId}/comments/{commentId}',
-    handler: handler.deleteCommentHandler,
-    options: {
-      auth: authStrategy.JwtAuthStrategyName,
-    },
-  },
 ]);
 
 module.exports = routes;
