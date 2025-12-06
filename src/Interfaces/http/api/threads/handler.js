@@ -37,12 +37,6 @@ class ThreadsHandler {
     const { threadId } = request.params;
 
     const thread = await useCase.execute(threadId);
-    thread.comments.forEach((c) => {
-      if (c.isDeleted) {
-        // eslint-disable-next-line no-param-reassign
-        c.content = '**komentar telah dihapus**';
-      }
-    });
 
     const response = h.response({
       status: 'success',

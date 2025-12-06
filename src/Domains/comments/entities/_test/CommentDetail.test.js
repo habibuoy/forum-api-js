@@ -47,4 +47,27 @@ describe('a CommentDetail entity', () => {
     expect(content).toEqual(payload.content);
     expect(isDeleted).toEqual(false);
   });
+
+  it('should create CommentDetail object correctly with deleted status', () => {
+    // Arrange
+    const payload = {
+      id: 'comment-123',
+      date: '2021-08-08T07:26:25.338Z',
+      username: 'username',
+      content: 'Test Comment',
+      isDeleted: true,
+    };
+
+    // Action
+    const {
+      id, date, username, content, isDeleted,
+    } = new CommentDetail(payload);
+
+    // Assert
+    expect(id).toEqual(payload.id);
+    expect(date).toEqual(payload.date);
+    expect(username).toEqual(payload.username);
+    expect(content).toEqual('**komentar telah dihapus**');
+    expect(isDeleted).toEqual(true);
+  });
 });
