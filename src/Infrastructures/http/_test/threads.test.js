@@ -1,6 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 const container = require('../../container');
 const createServer = require('../createServer');
@@ -16,7 +17,7 @@ describe('/threads endpoint', () => {
   });
 
   describe('when POST /threads', () => {
-    it('should response 201 and persisted thread', async () => {
+    it('should response 201 and persist thread', async () => {
       // Arrange
       const userData = {
         id: 'id',
@@ -304,6 +305,208 @@ describe('/threads endpoint', () => {
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('thread tidak ditemukan');
+    });
+  });
+
+  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+    it('should response 200 and delete comment', async () => {
+      // Arrange
+      const userData = {
+        id: 'user-123',
+        username: 'test',
+        password: 'test',
+      };
+
+      await UsersTableTestHelper.addUser({ ...userData });
+      const user = (await UsersTableTestHelper.findUsersById(userData.id))[0];
+      const tokenManager = await container.getInstance(AuthenticationTokenManager.name);
+      const accessToken = await tokenManager.createAccessToken({ ...user });
+
+      const threadData = {
+        id: 'thread-123',
+        title: 'test',
+        body: 'test',
+        owner: userData.id,
+      };
+
+      await ThreadsTableTestHelper.addThread({ ...threadData });
+
+      const commentData = {
+        id: 'comment-123',
+        threadId: threadData.id,
+        ownerId: userData.id,
+      };
+
+      await CommentsTableTestHelper.addComment({ ...commentData });
+
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadData.id}/comments/${commentData.id}`,
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 404 when thread is not valid or not found', async () => {
+      // Arrange
+      const userData = {
+        id: 'user-123',
+        username: 'test',
+        password: 'test',
+      };
+
+      await UsersTableTestHelper.addUser({ ...userData });
+      const user = (await UsersTableTestHelper.findUsersById(userData.id))[0];
+      const tokenManager = await container.getInstance(AuthenticationTokenManager.name);
+      const accessToken = await tokenManager.createAccessToken({ ...user });
+
+      const threadData = {
+        id: 'thread-123',
+        title: 'test',
+        body: 'test',
+        owner: userData.id,
+      };
+
+      await ThreadsTableTestHelper.addThread({ ...threadData });
+
+      const commentData = {
+        id: 'comment-123',
+        threadId: threadData.id,
+        ownerId: userData.id,
+      };
+
+      await CommentsTableTestHelper.addComment({ ...commentData });
+
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/thread-notfound/comments/${commentData.id}`,
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('thread tidak ditemukan');
+    });
+
+    it('should response 404 when comment not found', async () => {
+      // Arrange
+      const userData = {
+        id: 'user-123',
+        username: 'test',
+        password: 'test',
+      };
+
+      await UsersTableTestHelper.addUser({ ...userData });
+      const user = (await UsersTableTestHelper.findUsersById(userData.id))[0];
+      const tokenManager = await container.getInstance(AuthenticationTokenManager.name);
+      const accessToken = await tokenManager.createAccessToken({ ...user });
+
+      const threadData = {
+        id: 'thread-123',
+        title: 'test',
+        body: 'test',
+        owner: userData.id,
+      };
+
+      await ThreadsTableTestHelper.addThread({ ...threadData });
+
+      const commentData = {
+        id: 'comment-123',
+        threadId: threadData.id,
+        ownerId: userData.id,
+      };
+
+      await CommentsTableTestHelper.addComment({ ...commentData });
+
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadData.id}/comments/comment-notfound`,
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('komentar tidak ditemukan');
+    });
+
+    it('should response 403 when owner not correct', async () => {
+      // Arrange
+      const commentOwner = {
+        id: 'user-124',
+        username: 'test1',
+        password: 'test',
+      };
+
+      const userData = {
+        id: 'user-123',
+        username: 'test',
+        password: 'test',
+      };
+
+      await UsersTableTestHelper.addUser({ ...userData });
+      const user = (await UsersTableTestHelper.findUsersById(userData.id))[0];
+
+      await UsersTableTestHelper.addUser({ ...commentOwner });
+
+      const tokenManager = await container.getInstance(AuthenticationTokenManager.name);
+      const accessToken = await tokenManager.createAccessToken({ ...user });
+
+      const threadData = {
+        id: 'thread-123',
+        title: 'test',
+        body: 'test',
+        owner: userData.id,
+      };
+
+      await ThreadsTableTestHelper.addThread({ ...threadData });
+
+      const commentData = {
+        id: 'comment-123',
+        threadId: threadData.id,
+        ownerId: commentOwner.id,
+      };
+
+      await CommentsTableTestHelper.addComment({ ...commentData });
+
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadData.id}/comments/${commentData.id}`,
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('komentar beda pemilik');
     });
   });
 });
