@@ -56,10 +56,6 @@ const createServer = async (container) => {
     // mendapatkan konteks response dari request
     const { response } = request;
 
-    // if (request.path === '/threads') {
-    //   console.log('error response, request payload', request.response, request.payload);
-    // }
-
     if (response instanceof Error) {
       // bila response tersebut error, tangani sesuai kebutuhan
       const translatedError = DomainErrorTranslator.translate(response);
@@ -85,7 +81,6 @@ const createServer = async (container) => {
         message: 'terjadi kegagalan pada server kami',
       });
 
-      console.log(response);
       newResponse.code(500);
       return newResponse;
     }

@@ -196,4 +196,39 @@ describe('CommentRepositoryPostgres', () => {
       await expect(repository.deleteCommentById('comment-notfound')).rejects.toThrow(NotFoundError);
     });
   });
+
+  describe('getCommentsByThreadId function', () => {
+    it('should get comments by thread id correctly', async () => {
+      // Arrange
+      const userId = 'user-123';
+      await UsersTableTestHelper.addUser({ id: userId });
+      const user = (await UsersTableTestHelper.findUsersById(userId))[0];
+
+      const threadId = 'thread-123';
+      await ThreadsTableTestHelper.addThread({ id: threadId, owner: user.id });
+      const thread = (await ThreadsTableTestHelper.findThreadsById(threadId))[0];
+
+      const commentId = 'comment-123';
+      const comment2Id = 'comment-124';
+
+      await CommentsTableTestHelper.addComment({
+        id: commentId, threadId: thread.id, ownerId: user.id,
+      });
+
+      await CommentsTableTestHelper.addComment({
+        id: comment2Id,
+        threadId: thread.id,
+        ownerId: user.id,
+        date: '2021-08-08T07:26:38.338Z',
+      });
+
+      const repository = new CommentRepositoryPostgres(pool);
+
+      const comments = await repository.getCommentsByThreadId(thread.id);
+
+      expect(comments).toHaveLength(2);
+      expect(comments[0].id).toEqual(commentId);
+      expect(comments[1].id).toEqual(comment2Id);
+    });
+  });
 });

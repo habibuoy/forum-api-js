@@ -131,6 +131,99 @@ describe('/threads endpoint', () => {
     });
   });
 
+  describe('when GET /threads/{threadId}', () => {
+    it('should response 200 and return thread with comments', async () => {
+      // Arrange
+      const userData = {
+        id: 'user-123',
+        username: 'test',
+        password: 'test',
+      };
+
+      await UsersTableTestHelper.addUser({ ...userData });
+      const user = (await UsersTableTestHelper.findUsersById(userData.id))[0];
+
+      const threadData = {
+        id: 'thread-123',
+        title: 'test',
+        body: 'test',
+        owner: user.id,
+        date: '2021-08-08T07:18:09.775Z',
+      };
+
+      await ThreadsTableTestHelper.addThread({ ...threadData });
+
+      const commentData = {
+        id: 'comment-123',
+        threadId: threadData.id,
+        ownerId: userData.id,
+        date: '2021-08-08T07:19:09.775Z',
+      };
+
+      const comment2Data = {
+        id: 'comment-124',
+        threadId: threadData.id,
+        ownerId: userData.id,
+        date: '2021-08-08T07:20:21.775Z',
+      };
+
+      const deleteComment = {
+        id: 'comment-125',
+        threadId: threadData.id,
+        ownerId: userData.id,
+        date: '2021-08-08T07:20:25.775Z',
+      };
+
+      await CommentsTableTestHelper.addComment({ ...comment2Data });
+      await CommentsTableTestHelper.addComment({ ...commentData });
+      await CommentsTableTestHelper.addComment({ ...deleteComment });
+
+      await CommentsTableTestHelper.deleteCommentById(deleteComment.id);
+
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadData.id}`,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data).toBeDefined();
+      expect(responseJson.data.thread).toBeDefined();
+      expect(responseJson.data.thread.id).toEqual(threadData.id);
+      expect(responseJson.data.thread.title).toEqual(threadData.title);
+      expect(responseJson.data.thread.body).toEqual(threadData.body);
+      expect(responseJson.data.thread.date).toEqual(threadData.date);
+      expect(responseJson.data.thread.username).toEqual(userData.username);
+      expect(responseJson.data.thread.comments).toBeDefined();
+      expect(responseJson.data.thread.comments).toHaveLength(3);
+      expect(responseJson.data.thread.comments[0].id).toEqual(commentData.id);
+      expect(responseJson.data.thread.comments[1].id).toEqual(comment2Data.id);
+      expect(responseJson.data.thread.comments[2].id).toEqual(deleteComment.id);
+      expect(responseJson.data.thread.comments[2].content).toEqual('**komentar telah dihapus**');
+    });
+
+    it('should response 404 when thread not found', async () => {
+      // Arrange
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: '/threads/thread-notfound',
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+    });
+  });
+
   describe('when POST /threads/{threadId}/comments', () => {
     it('should response 201 and persisted comment', async () => {
       // Arrange
