@@ -58,17 +58,17 @@ describe('GetThreadByIdUseCase', () => {
     });
 
     // Action
-    const threadDetail = await useCase.execute(threadPayload.id);
+    const threadDetailWithComments = await useCase.execute(threadPayload.id);
 
     // Assert
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(threadPayload.id);
     expect(mockCommentRepository.getCommentsByThreadId).toHaveBeenCalledWith(threadPayload.id);
-    expect(threadDetail.id).toEqual(mockThread.id);
-    expect(threadDetail.title).toEqual(mockThread.title);
-    expect(threadDetail.body).toEqual(threadPayload.body);
-    expect(threadDetail.date).toEqual(mockThread.date);
-    expect(threadDetail.username).toEqual(threadOwnerUser.username);
-    expect(threadDetail.comments).toBeDefined();
-    expect(threadDetail.comments).toHaveLength(comments.length);
+    expect(threadDetailWithComments.id).toEqual(mockThread.id);
+    expect(threadDetailWithComments.title).toEqual(mockThread.title);
+    expect(threadDetailWithComments.body).toEqual(threadPayload.body);
+    expect(threadDetailWithComments.date).toEqual(mockThread.date);
+    expect(threadDetailWithComments.username).toEqual(threadOwnerUser.username);
+    expect(threadDetailWithComments.comments).toBeDefined();
+    expect(threadDetailWithComments.comments).toHaveLength(comments.length);
   });
 });
