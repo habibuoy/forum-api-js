@@ -13,7 +13,7 @@
     "migrate:test": "node-pg-migrate -f config/database/test.json"
   },
   "keywords": [],
-  "author": "",
+  "author": "Habibie Muhammad Ar Rahim",
   "license": "ISC",
   "dependencies": {
     "@hapi/hapi": "^21.4.4",
