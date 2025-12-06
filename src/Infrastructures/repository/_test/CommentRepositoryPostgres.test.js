@@ -180,5 +180,13 @@ describe('CommentRepositoryPostgres', () => {
       const isDeleted = comment.is_deleted;
       expect(isDeleted).toBe(true);
     });
+
+    it('should throw NotFoundError when comment not found', async () => {
+      // Arrange
+      const repository = new CommentRepositoryPostgres(pool);
+
+      // Action and Assert
+      await expect(repository.deleteCommentById('comment-notfound')).rejects.toThrow(NotFoundError);
+    });
   });
 });
