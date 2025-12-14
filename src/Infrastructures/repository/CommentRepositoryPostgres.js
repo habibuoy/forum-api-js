@@ -60,6 +60,26 @@ class CommentRepositoryPostgres extends CommentRepository {
     }
   }
 
+  async getCommentById(id) {
+    const query = {
+      text: `
+        SELECT c.*, u.username FROM comments c
+        JOIN users u ON c.owner_id = u.id
+        WHERE c.id = $1
+        ORDER BY c.date ASC
+      `,
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length || result.rows.length === 0) {
+      throw new NotFoundError('komentar tidak ditemukan');
+    }
+
+    return new CommentDetail(mapper.detailFromDb(result.rows[0]));
+  }
+
   async getCommentsByThreadId(id) {
     const query = {
       text: `
