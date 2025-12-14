@@ -13,6 +13,7 @@ const ReplyDetail = require('../../../Domains/replies/entities/ReplyDetail');
 describe('ReplyRepositoryPostgres', () => {
   afterEach(async () => {
     await UsersTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
     await RepliesTableTestHelper.cleanTable();
   });
