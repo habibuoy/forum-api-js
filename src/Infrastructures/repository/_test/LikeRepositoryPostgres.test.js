@@ -33,19 +33,19 @@ describe('LikeRepositoryPostgres', () => {
       await CommentsTableTestHelper.addComment({ id: commentId, threadId, ownerId: user.id });
       const comment = (await CommentsTableTestHelper.findCommentsById(commentId))[0];
 
+      const fakeDateProvider = {
+        getUtcNowString: () => new Date('2021-08-08T07:22:33.555Z').toISOString(),
+      };
+
       const addLike = {
         commentId: comment.id,
         userId: user.id,
       };
 
-      const fakeIdGenerator = () => '123'; // stub!
-      const fakeDateProvider = {
-        getUtcNowString: () => new Date('2021-08-08T07:22:33.555Z').toISOString(),
-      };
-      const repository = new LikeRepositoryPostgres(pool, fakeIdGenerator, fakeDateProvider);
+      const repository = new LikeRepositoryPostgres(pool, fakeDateProvider);
 
       // Action
-      const addedLike = await repository.addReply(addLike);
+      const addedLike = await repository.addLike(addLike);
 
       // Assert
       expect(addedLike).toStrictEqual(new LikeDetail({
@@ -57,7 +57,7 @@ describe('LikeRepositoryPostgres', () => {
   });
 
   describe('checkLike function', () => {
-    it('should check like correctly', async () => {
+    it('should return true when like is found', async () => {
       // Arrange
       const userId = 'user-123';
       await UsersTableTestHelper.addUser({ id: userId });
@@ -77,20 +77,22 @@ describe('LikeRepositoryPostgres', () => {
 
       const repository = new LikeRepositoryPostgres(pool);
 
-      // Action and assert
-      await expect(repository.checkLike({
-        commentId, userId,
-      })).resolves.not.toThrow(NotFoundError);
+      // Action
+      const like = await repository.checkLike({ commentId, userId });
+
+      // Assert
+      expect(like).toEqual(true);
     });
 
-    it('should throw NotFoundError when like not found', async () => {
+    it('should return false when like is not not found', async () => {
       // Arrange
       const repository = new LikeRepositoryPostgres(pool);
 
-      // Action and Assert
-      await expect(repository.verifyReplyOwner({
-        commentId: 'like', userId: 'user',
-      })).rejects.toThrow(NotFoundError);
+      // Action
+      const like = await repository.checkLike({ commentId: 'comment', userId: 'user' });
+
+      // Assert
+      expect(like).toEqual(false);
     });
   });
 
@@ -134,6 +136,7 @@ describe('LikeRepositoryPostgres', () => {
       const userId = 'user-123';
       const userId2 = 'user-124';
       await UsersTableTestHelper.addUser({ id: userId });
+      await UsersTableTestHelper.addUser({ id: userId2, username: 'test2' });
       const user = (await UsersTableTestHelper.findUsersById(userId))[0];
 
       const threadId = 'thread-123';
@@ -156,7 +159,7 @@ describe('LikeRepositoryPostgres', () => {
 
       expect(likes).toHaveLength(2);
       expect(likes[0].userId).toEqual(userId);
-      expect(likes[0].userId).toEqual(userId2);
+      expect(likes[1].userId).toEqual(userId2);
     });
   });
 });

@@ -9,10 +9,11 @@ describe('LikeCommentUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
-  it('should orchestrating the add reply action correctly', async () => {
+  it('should orchestrating the like comment action correctly', async () => {
     // Arrange
     const useCasePayload = {
-      commentId: 'comment',
+      threadId: 'thread',
+      commentId: 'comment-123',
       userId: 'user',
     };
 
@@ -43,13 +44,14 @@ describe('LikeCommentUseCase', () => {
     mockRepository.deleteLike = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockRepository.checkLike = jest.fn()
-      .mockImplementation(() => Promise.resolve(true));
+      .mockImplementationOnce(() => Promise.resolve(false))
+      .mockImplementationOnce(() => Promise.resolve(true));
     mockCommentRepository.getCommentById = jest.fn()
       .mockImplementation(() => Promise.resolve(mockComment));
 
     /** creating use case instance */
     const useCase = new LikeCommentUseCase({
-      LikeRepository: mockRepository,
+      likeRepository: mockRepository,
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
     });
@@ -85,7 +87,7 @@ describe('LikeCommentUseCase', () => {
     expect(secondLike).toStrictEqual(new LikeDetail({
       commentId: 'comment-123',
       userId: 'user',
-      date: null,
+      date: '',
     }));
   });
 });

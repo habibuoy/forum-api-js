@@ -21,7 +21,7 @@ describe('a CommentDetailWithReplies entity', () => {
       username: 'username',
       isDeleted: 123,
       replies: { },
-      likeCount: '',
+      likeCount: [],
     };
 
     // Action and Assert

@@ -2,10 +2,13 @@ const CommentDetailWithReplies = require('../../Domains/comments/entities/Commen
 const ThreadDetailWithComments = require('../../Domains/threads/entities/ThreadDetailWithComments');
 
 class GetThreadByIdUseCase {
-  constructor({ commentRepository, threadRepository, replyRepository }) {
+  constructor({
+    commentRepository, threadRepository, replyRepository, likeRepository,
+  }) {
     this._commentRepository = commentRepository;
     this._threadRepository = threadRepository;
     this._replyRepository = replyRepository;
+    this._likeRepository = likeRepository;
   }
 
   async execute(threadId) {
@@ -13,14 +16,18 @@ class GetThreadByIdUseCase {
     const comments = await this._commentRepository.getCommentsByThreadId(threadId);
 
     const commentWithReplies = await Promise.all(
-      comments.map(async (c) => new CommentDetailWithReplies({
-        id: c.id,
-        content: c.content,
-        username: c.username,
-        date: c.date,
-        isDeleted: c.isDeleted,
-        replies: await this._replyRepository.getRepliesByCommentId(c.id),
-      })),
+      comments.map(async (c) => {
+        const likes = await this._likeRepository.getLikesByCommentId(c.id);
+        return new CommentDetailWithReplies({
+          id: c.id,
+          content: c.content,
+          username: c.username,
+          date: c.date,
+          isDeleted: c.isDeleted,
+          replies: await this._replyRepository.getRepliesByCommentId(c.id),
+          likeCount: likes.length,
+        });
+      }),
     );
 
     const threadDetail = new ThreadDetailWithComments({

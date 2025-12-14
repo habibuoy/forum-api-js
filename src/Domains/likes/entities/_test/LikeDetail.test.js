@@ -34,7 +34,7 @@ describe('a LikeDetail entity', () => {
     // Action
     const {
       commentId, userId, date,
-    } = new CommentDetail(payload);
+    } = new LikeDetail(payload);
 
     // Assert
     expect(commentId).toEqual(payload.commentId);

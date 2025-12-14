@@ -124,6 +124,7 @@ describe('GetThreadByIdUseCase', () => {
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
       replyRepository: mockReplyRepository,
+      likeRepository: mockLikeRepository,
     });
 
     // Action
@@ -138,7 +139,7 @@ describe('GetThreadByIdUseCase', () => {
       .toHaveBeenNthCalledWith(2, mockComment.id);
     expect(mockLikeRepository.getLikesByCommentId)
       .toHaveBeenNthCalledWith(1, mockOlderComment.id);
-    expect(mockReplyRepository.getLikesByCommentId)
+    expect(mockLikeRepository.getLikesByCommentId)
       .toHaveBeenNthCalledWith(2, mockComment.id);
     expect(threadDetailWithComments.id).toEqual(mockThread.id);
     expect(threadDetailWithComments.title).toEqual(mockThread.title);
