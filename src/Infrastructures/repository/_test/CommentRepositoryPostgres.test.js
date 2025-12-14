@@ -7,6 +7,7 @@ const AddComment = require('../../../Domains/comments/entities/AddComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const CommentDetail = require('../../../Domains/comments/entities/CommentDetail');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
@@ -20,7 +21,7 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   describe('addComment function', () => {
-    it('should persist add comment and return created comment correctly', async () => {
+    it('should persist add comment and return added comment correctly', async () => {
       // Arrange
       const userId = 'user-123';
       await UsersTableTestHelper.addUser({ id: userId });
@@ -50,7 +51,7 @@ describe('CommentRepositoryPostgres', () => {
       expect(comments).toHaveLength(1);
     });
 
-    it('should return created comment correctly', async () => {
+    it('should return added comment correctly', async () => {
       // Arrange
       const userId = 'user-123';
       await UsersTableTestHelper.addUser({ id: userId });
@@ -185,7 +186,7 @@ describe('CommentRepositoryPostgres', () => {
       // eslint-disable-next-line prefer-destructuring
       comment = (await CommentsTableTestHelper.findCommentsById(commentId))[0];
       const isDeleted = comment.is_deleted;
-      expect(isDeleted).toBe(true);
+      expect(isDeleted).toEqual(true);
     });
 
     it('should throw NotFoundError when comment not found', async () => {
@@ -194,6 +195,42 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action and Assert
       await expect(repository.deleteCommentById('comment-notfound')).rejects.toThrow(NotFoundError);
+    });
+  });
+
+  describe('getCommentById function', () => {
+    it('should get comment by id correctly', async () => {
+      // Arrange
+      const userId = 'user-123';
+      await UsersTableTestHelper.addUser({ id: userId });
+      const user = (await UsersTableTestHelper.findUsersById(userId))[0];
+
+      const threadId = 'thread-123';
+      await ThreadsTableTestHelper.addThread({ id: threadId, owner: user.id });
+      const thread = (await ThreadsTableTestHelper.findThreadsById(threadId))[0];
+
+      const now = (new Date()).toISOString();
+      const commentPayload = {
+        id: 'comment-123',
+        threadId: thread.id,
+        content: 'test body',
+        owner: user.id,
+        date: now,
+      };
+
+      await CommentsTableTestHelper.addComment(commentPayload);
+
+      const repository = new CommentRepositoryPostgres(pool);
+
+      const comment = await repository.getCommentById(commentPayload.id);
+
+      expect(comment).toStrictEqual(new CommentDetail({
+        id: comment.id,
+        title: comment.title,
+        body: comment.body,
+        username: user.username,
+        date: comment.date,
+      }));
     });
   });
 
