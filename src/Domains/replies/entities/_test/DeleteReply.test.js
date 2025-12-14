@@ -4,8 +4,8 @@ describe('a DeleteReply entity', () => {
   it('should throw error when payload does not contain needed property', () => {
     // Arrange
     const payload = {
+      id: 'reply-123',
       commentId: 'comment-123',
-      replyId: 'reply-123',
     };
 
     // Action and Assert
@@ -15,8 +15,8 @@ describe('a DeleteReply entity', () => {
   it('should throw error when payload does not meet data type specification', () => {
     // Arrange
     const payload = {
+      id: [],
       commentId: { },
-      replyId: [],
       ownerId: 'user-123',
     };
 
@@ -27,17 +27,17 @@ describe('a DeleteReply entity', () => {
   it('should create DeleteReply object correctly', () => {
     // Arrange
     const payload = {
+      id: 'reply-123',
       commentId: 'comment-123',
-      replyId: 'reply-123',
       ownerId: 'user-123',
     };
 
     // Action
-    const { commentId, replyId, ownerId } = new DeleteReply(payload);
+    const { id, commentId, ownerId } = new DeleteReply(payload);
 
     // Assert
+    expect(id).toEqual(payload.id);
     expect(commentId).toEqual(payload.commentId);
-    expect(replyId).toEqual(payload.replyId);
     expect(ownerId).toEqual(payload.ownerId);
   });
 });

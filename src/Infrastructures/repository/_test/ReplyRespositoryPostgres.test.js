@@ -48,16 +48,12 @@ describe('ReplyRepositoryPostgres', () => {
       const repository = new ReplyRepositoryPostgres(pool, fakeIdGenerator, fakeDateProvider);
 
       // Action
-      await repository.addReply(addReply);
+      const addedReply = await repository.addReply(addReply);
 
       // Assert
-      const reply = await RepliesTableTestHelper.findReplyById('reply-123');
-
-      // Assert
-      expect(reply).toStrictEqual(new AddedReply({
+      expect(addedReply).toStrictEqual(new AddedReply({
         id: 'reply-123',
         content: addReply.content,
-        commentId: comment.id,
         ownerId: user.id,
         date: fakeDateProvider.getUtcNowString(),
       }));
@@ -105,8 +101,8 @@ describe('ReplyRepositoryPostgres', () => {
       const repository = new ReplyRepositoryPostgres(pool);
 
       // Action and Assert
-      await expect(repository.verifyCommentOwner({
-        replyId: 'reply-notfound', ownerId: user.id,
+      await expect(repository.verifyReplyOwner({
+        replyId: 'reply-notfound', ownerId: 'user',
       })).rejects.toThrow(NotFoundError);
     });
 
@@ -182,7 +178,7 @@ describe('ReplyRepositoryPostgres', () => {
       const repository = new ReplyRepositoryPostgres(pool);
 
       // Action and Assert
-      await expect(repository.deleteCommentById('reply-notfound')).rejects.toThrow(NotFoundError);
+      await expect(repository.deleteReplyById('reply-notfound')).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -229,8 +225,8 @@ describe('ReplyRepositoryPostgres', () => {
     });
   });
 
-  describe('getCommentsByThreadId function', () => {
-    it('should get comments by thread id correctly', async () => {
+  describe('getRepliesByCommentId function', () => {
+    it('should get replies by comment id correctly', async () => {
       // Arrange
       const userId = 'user-123';
       await UsersTableTestHelper.addUser({ id: userId });
@@ -261,6 +257,7 @@ describe('ReplyRepositoryPostgres', () => {
         commentId,
         content: 'test reply 2',
         ownerId: userId,
+        date: '2021-08-08T07:24:33.555Z',
       });
 
       const repository = new ReplyRepositoryPostgres(pool);

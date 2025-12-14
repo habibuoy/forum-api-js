@@ -67,7 +67,7 @@ describe('a ReplyDetail entity', () => {
     expect(id).toEqual(payload.id);
     expect(date).toEqual(payload.date);
     expect(username).toEqual(payload.username);
-    expect(content).toEqual('**balasan  telah dihapus**');
+    expect(content).toEqual('**balasan telah dihapus**');
     expect(isDeleted).toEqual(true);
   });
 });

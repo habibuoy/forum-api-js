@@ -2,6 +2,7 @@ const CommentRepository = require('../../../Domains/comments/CommentRepository')
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const DeleteReplyUseCase = require('../DeleteReplyUseCase');
 const CommentDetail = require('../../../Domains/comments/entities/CommentDetail');
+const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 
 describe('DeleteReplyUseCase', () => {
   /**
@@ -18,16 +19,19 @@ describe('DeleteReplyUseCase', () => {
     const mockComment = new CommentDetail({
       id: 'comment-123',
       content: 'test comment',
-      ownerId: 'user',
+      username: 'user',
       isDeleted: false,
       date: new Date().toISOString(),
     });
 
     /** creating dependency of use case */
     const mockRepository = new ReplyRepository();
+    const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
 
     /** mocking needed function */
+    mockThreadRepository.getThreadById = jest.fn()
+      .mockImplementation(() => Promise.resolve({ }));
     mockCommentRepository.getCommentById = jest.fn()
       .mockImplementation(() => Promise.resolve(mockComment));
     mockRepository.verifyReplyOwner = jest.fn()
@@ -37,6 +41,7 @@ describe('DeleteReplyUseCase', () => {
 
     /** creating use case instance */
     const useCase = new DeleteReplyUseCase({
+      threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockRepository,
     });

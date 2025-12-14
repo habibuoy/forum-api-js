@@ -214,7 +214,7 @@ describe('CommentRepositoryPostgres', () => {
         id: 'comment-123',
         threadId: thread.id,
         content: 'test body',
-        owner: user.id,
+        ownerId: user.id,
         date: now,
       };
 
@@ -225,11 +225,11 @@ describe('CommentRepositoryPostgres', () => {
       const comment = await repository.getCommentById(commentPayload.id);
 
       expect(comment).toStrictEqual(new CommentDetail({
-        id: comment.id,
-        title: comment.title,
-        body: comment.body,
+        id: commentPayload.id,
+        content: commentPayload.content,
         username: user.username,
-        date: comment.date,
+        date: commentPayload.date,
+        isDeleted: false,
       }));
     });
   });
