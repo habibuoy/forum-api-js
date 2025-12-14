@@ -223,6 +223,14 @@ describe('ReplyRepositoryPostgres', () => {
         isDeleted: false,
       }));
     });
+
+    it('should throw NotFoundError when reply not found', async () => {
+      // Arrange
+      const repository = new ReplyRepositoryPostgres(pool);
+
+      // Action and Assert
+      await expect(repository.getReplyById('reply-notfound')).rejects.toThrow(NotFoundError);
+    });
   });
 
   describe('getRepliesByCommentId function', () => {
