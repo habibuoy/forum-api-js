@@ -4,7 +4,9 @@ const ReplyDetail = require('../../../Domains/replies/entities/ReplyDetail');
 const ThreadDetail = require('../../../Domains/threads/entities/ThreadDetail');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
+const LikeRepository = require('../../../Domains/likes/LikeRepository');
 const GetThreadByIdUseCase = require('../GetThreadByIdUseCase');
+const LikeDetail = require('../../../Domains/likes/entities/LikeDetail');
 
 describe('GetThreadByIdUseCase', () => {
   it('should orchestrating get thread by id action correctly', async () => {
@@ -87,12 +89,23 @@ describe('GetThreadByIdUseCase', () => {
       mockComment,
     ];
 
+    const mockLike = new LikeDetail({
+      commentId: mockComment.id,
+      userId: threadOwnerUser.id,
+      date: new Date('2021-08-08T07:28:30.338Z').toISOString(),
+    });
+
+    const likes = [
+      mockLike,
+    ];
+
     const mockThread = new ThreadDetail(threadPayload);
 
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
+    const mockLikeRepository = new LikeRepository();
 
     /** mocking needed function */
     mockThreadRepository.getThreadById = jest.fn()
@@ -102,12 +115,16 @@ describe('GetThreadByIdUseCase', () => {
     mockReplyRepository.getRepliesByCommentId = jest.fn()
       .mockImplementationOnce(() => Promise.resolve(repliesForOlderComment))
       .mockImplementationOnce(() => Promise.resolve(replies));
+    mockLikeRepository.getLikesByCommentId = jest.fn()
+      .mockImplementationOnce(() => Promise.resolve(likes))
+      .mockImplementationOnce(() => Promise.resolve([]));
 
     /** creating use case instance */
     const useCase = new GetThreadByIdUseCase({
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
       replyRepository: mockReplyRepository,
+      likeRepository: mockLikeRepository,
     });
 
     // Action
@@ -119,6 +136,10 @@ describe('GetThreadByIdUseCase', () => {
     expect(mockReplyRepository.getRepliesByCommentId)
       .toHaveBeenNthCalledWith(1, mockOlderComment.id);
     expect(mockReplyRepository.getRepliesByCommentId)
+      .toHaveBeenNthCalledWith(2, mockComment.id);
+    expect(mockLikeRepository.getLikesByCommentId)
+      .toHaveBeenNthCalledWith(1, mockOlderComment.id);
+    expect(mockLikeRepository.getLikesByCommentId)
       .toHaveBeenNthCalledWith(2, mockComment.id);
     expect(threadDetailWithComments.id).toEqual(mockThread.id);
     expect(threadDetailWithComments.title).toEqual(mockThread.title);
@@ -132,5 +153,9 @@ describe('GetThreadByIdUseCase', () => {
       .toHaveLength(repliesForOlderComment.length);
     expect(threadDetailWithComments.comments[1].replies)
       .toHaveLength(replies.length);
+    expect(threadDetailWithComments.comments[0].likeCount)
+      .toEqual(likes.length);
+    expect(threadDetailWithComments.comments[1].likeCount)
+      .toEqual(0);
   });
 });

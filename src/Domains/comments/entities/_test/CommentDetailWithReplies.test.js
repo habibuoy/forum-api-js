@@ -21,6 +21,7 @@ describe('a CommentDetailWithReplies entity', () => {
       username: 'username',
       isDeleted: 123,
       replies: { },
+      likeCount: [],
     };
 
     // Action and Assert
@@ -36,11 +37,12 @@ describe('a CommentDetailWithReplies entity', () => {
       username: 'username',
       isDeleted: false,
       replies: [],
+      likeCount: 1,
     };
 
     // Action
     const {
-      id, content, date, username, replies, isDeleted,
+      id, content, date, username, replies, isDeleted, likeCount,
     } = new CommentDetailWithReplies(payload);
 
     // Assert
@@ -51,5 +53,6 @@ describe('a CommentDetailWithReplies entity', () => {
     expect(isDeleted).toEqual(payload.isDeleted);
     expect(replies).toBeInstanceOf(Array);
     expect(replies.length).toEqual(payload.replies.length);
+    expect(likeCount).toEqual(payload.likeCount);
   });
 });
